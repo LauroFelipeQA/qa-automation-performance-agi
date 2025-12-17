@@ -1,123 +1,96 @@
-# Teste de Performance – BlazeDemo
+# Teste de Performance – BlazeDemo #
+## 1. Objetivo ##
 
-## 📌 Objetivo
+Este projeto tem como objetivo avaliar o desempenho da aplicação BlazeDemo no fluxo completo de compra de passagem aérea, utilizando o Apache JMeter 5.6.2 com Concurrency Thread Group, contemplando cenários de teste de carga e teste de pico.
 
-Este projeto tem como objetivo validar a performance do fluxo de **compra de passagem aérea** da aplicação BlazeDemo, conforme o critério de aceitação definido no teste técnico.
+## 2. Escopo do Teste ##
 
-URL testada: [https://www.blazedemo.com](https://www.blazedemo.com)
+### Fluxo testado ###
 
----
+Compra de passagem aérea com sucesso, incluindo:
 
-## 🎯 Critério de Aceitação
+- Acesso à página inicial
+- Busca de voos
+- Seleção de voo
+- Confirmação da compra
+- Critérios de aceitação
 
-* Sustentar **250 requisições por segundo**
-* **Percentil 90** do tempo de resposta **inferior a 2 segundos**
+Carga:
 
----
+- Throughput mínimo de 250 requisições por segundo
+- 90º percentil < 2 segundos
 
-## 🛠️ Ferramentas Utilizadas
+Pico:
 
-* **Apache JMeter 5.6.3**
-* Sistema operacional: Windows
-* Execução em modo **non-GUI** para maior fidelidade dos resultados
+- Avaliar comportamento do sistema sob aumento abrupto de concorrência (sem SLA de tempo de resposta)
 
----
+## 3. Ferramentas e Tecnologias ##
 
-## 📁 Estrutura do Projeto
+- Apache JMeter 5.6.2
+- Plugin Concurrency Thread Group
+- Execução em modo não-GUI
+- Relatórios HTML nativos do JMeter
 
-```
-├── BlazeDemo teste requisicao.jmx
-├── result.jtl
-├── report/
-│   └── index.html
-└── README.md
-```
+## 4. Estratégia de Teste ##
 
----
+Os cenários de carga e pico foram executados de forma independente, conforme boas práticas de testes de performance, garantindo isolamento das métricas e melhor análise dos resultados.
 
-## ▶️ Como Executar o Teste
+## 5. Configuração dos Cenários ##
+### 5.1 Teste de Carga ###
 
-### 1️⃣ Pré-requisitos
+Parâmetro	Valor
+Tipo de teste	Carga
+- Concorrência alvo	250 usuários
+- Ramp-up	2 minutos
+- Tempo em carga	10 minutos
+- Thread Group	Concurrency Thread Group
 
-* Java 8 ou superior
-* Apache JMeter 5.6.3 instalado
+### 5.2 Teste de Pico ###
+Parâmetro	Valor
+Tipo de teste	Pico
+- Concorrência alvo	500 usuários
+- Ramp-up	1 minuto
+- Tempo em pico	3 minutos
+- Thread Group	Concurrency Thread Group
 
-### 2️⃣ Execução em modo non-GUI
+## 6. Execução dos Testes ##
 
-A partir do diretório `bin` do JMeter, execute o comando abaixo:
+Os testes foram executados em modo não-GUI, conforme comandos abaixo:
 
-```powershell
-.\jmeter -n -t "BlazeDemo teste requisicao.jmx" -l result.jtl -e -o report
-```
+Teste de Carga
+".\jmeter -n -t blazedemo_performance.jmx -l carga.jtl -e -o relatorio_carga"
 
-Ao final da execução, será gerado um relatório HTML no diretório `report`.
+Teste de Pico
+".\jmeter -n -t blazedemo_performance.jmx -l pico.jtl -e -o relatorio_pico"
 
-### 3️⃣ Visualização do Relatório
+## 7. Resultados Obtidos ##
+### 7.1 Teste de Carga ###
 
-Abra o arquivo abaixo em um navegador:
+Métrica	Resultado
+  Throughput	312,69 req/s
+  90º Percentil	1433 ms
+  Erros	0%
 
-```
-report/index.html
-```
+#### Análise: ####
+O cenário de carga atendeu plenamente aos critérios de aceitação, superando a vazão mínima exigida e mantendo o tempo de resposta do 90º percentil abaixo de 2 segundos.
 
----
+### 7.2 Teste de Pico ###
+Métrica	Resultado
+  Throughput	94,52 req/s
+  90º Percentil	21.519 ms
+  Erros	0%
 
-## ⚙️ Configuração do Teste
+#### Análise: ####
+Durante o teste de pico, observou-se degradação significativa no tempo de resposta, comportamento esperado em cenários de estresse. Apesar da redução de throughput, a aplicação manteve estabilidade funcional, sem ocorrência de erros.
 
-* **Usuários simultâneos:** 300
-* **Ramp-up:** 60 segundos
-* **Duração:** 10 minutos
-* **Vazão controlada:** Constant Throughput Timer
-* **Fluxo testado:**
+## 8. Conclusão ##
 
-  * Home
-  * Buscar Voos
-  * Escolher Voo
-  * Confirmar Compra
+Os testes demonstraram que a aplicação suporta a carga esperada, atendendo aos requisitos de desempenho definidos, e apresenta comportamento previsível sob pico de acesso, com degradação controlada e sem falhas funcionais.
 
----
+## 9. Observações Técnicas ##
 
-## 📊 Resultados Obtidos
+O uso do Concurrency Thread Group permitiu maior controle sobre a concorrência e estabilidade da vazão.
 
-### Resumo Geral
+Os testes de carga e pico foram executados separadamente para garantir clareza na análise dos resultados.
 
-* **Total de requisições:** 105.807
-* **Throughput médio:** ~174 requisições por segundo
-* **Taxa de erro:** 0,79%
-* **Tempo médio de resposta:** ~1.051 ms
-
-### Percentis de Tempo de Resposta (Total)
-
-* **90th percentile:** 3.067 ms
-* **95th percentile:** 4.015 ms
-* **99th percentile:** 9.127 ms
-
----
-
-## 🧠 Análise dos Resultados
-
-O teste foi executado com o objetivo de validar o critério de aceitação de 250 requisições por segundo com o percentil 90 inferior a 2 segundos.
-
-Durante a execução, observou-se que a aplicação atingiu um throughput médio de aproximadamente **174 requisições por segundo**. A partir desse ponto, houve **degradação progressiva dos tempos de resposta**, indicando saturação da aplicação.
-
-O **percentil 90 apresentou valor médio de 3.067 ms**, ultrapassando o limite estabelecido de 2 segundos. Além disso, foram observados picos elevados no percentil 99, evidenciando impacto significativo sob carga elevada.
-
-A taxa de erro permaneceu abaixo de 1%, indicando que a aplicação continuou respondendo às requisições, porém com aumento relevante de latência.
-
----
-
-## ❌ Conclusão
-
-O critério de aceitação **não foi atendido**, pois a aplicação não sustentou a vazão de **250 requisições por segundo** mantendo o **percentil 90 abaixo de 2 segundos**.
-
-Os resultados indicam que o sistema apresenta limitações de escalabilidade quando submetido a cargas elevadas, comportamento esperado para uma aplicação de demonstração como o BlazeDemo.
-
----
-
-## 📌 Considerações Finais
-
-* O teste foi executado seguindo boas práticas de testes de performance
-* A execução em modo non-GUI garante maior confiabilidade dos dados
-* Os resultados refletem o comportamento real da aplicação sob carga
-
-Este projeto demonstra a aplicação prática de testes de carga, análise de métricas e tomada de decisão baseada em dados.
+O teste de pico não possui SLA de tempo de resposta, sendo utilizado apenas para avaliação de resiliência.
